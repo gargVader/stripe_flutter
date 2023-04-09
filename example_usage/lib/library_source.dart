@@ -2,14 +2,4 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-import 'dart:math';
-
-import 'package:source_gen_example/annotations.dart';
-
 part 'library_source.g.dart';
-
-@Multiplier(2)
-const answer = 42;
-
-@Charges()
-const tau = pi * 2;
