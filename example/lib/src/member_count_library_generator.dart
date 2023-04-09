@@ -3,54 +3,19 @@
 // BSD-style license that can be found in the LICENSE file.
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
 class MemberCountLibraryGenerator extends Generator {
   @override
-  String generate(LibraryReader library, BuildStep buildStep) {
+  Future<String> generate(LibraryReader library, BuildStep buildStep) async {
     final StringBuffer buffer = StringBuffer();
 
     // Generate code for the /charges endpoint
-    String dataString = '''[
-  {
-    "name": "Balance",
-    "methods": [
-      {
-        "http_method": "GET",
-        "endpoint": "/v1/balance",
-        "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
-        "parameters": [],
-        "endpoint_parameters": []
-      }
-    ]
-  },
-  {
-    "name": "BalanceTransactions",
-    "methods": [
-      {
-        "http_method": "GET",
-        "endpoint": "/v1/balance_transactions",
-        "description": "A dictionary with a data property that contains an array of up to limit transactions, starting after transaction starting_after. Each entry in the array is a separate transaction history object. If no more transactions are available, the resulting array will be empty.",
-        "parameters": [],
-        "endpoint_parameters": []
-      },
-      {
-        "http_method": "GET",
-        "endpoint": "/v1/balance_transactions/id",
-        "description": "Returns a balance transaction if a valid balance transaction ID was provided. Returns an error otherwise.",
-        "parameters": [],
-        "endpoint_parameters": [
-          {
-            "name": "id",
-            "type": "String"
-          }
-        ]
-      }
-    ]
-  }
-]''';
+    String dataString = await File('D:\\Manu\\Android Projects\\Flutter Projects\\New folder\\example\\lib\\src\\json_files\\api.json').readAsString();
+    print(dataString);
 
     final apis = jsonDecode(dataString);
     buffer.writeln('import "utils.dart";');
@@ -101,10 +66,29 @@ class MemberCountLibraryGenerator extends Generator {
     // Generate a method for the HTTP method
     buffer.writeln('  // $description');
     buffer.writeln('  void $methodName(${generatedParameters}) async {');
-    buffer.writeln(
-        'Utils.makeHTTPRequest("$generatedEndpoint", "${httpMethod.toUpperCase()}");    ');
+    if (parameters.isNotEmpty) {
+      final generatedBodyVar = _generateBodyVar(parameters);
+      buffer.writeln(generatedBodyVar);
+      buffer.writeln(
+          'Utils.makeHTTPRequest("$generatedEndpoint", "${httpMethod.toUpperCase()}", body: body.toString());    ');
+    } else {
+      buffer.writeln(
+          'Utils.makeHTTPRequest("$generatedEndpoint", "${httpMethod.toUpperCase()}");    ');
+    }
     buffer.writeln('  }\n\n');
 
+    return buffer.toString();
+  }
+
+  String _generateBodyVar(List parameters) {
+    StringBuffer buffer = new StringBuffer();
+    buffer.writeln('var body = {');
+    for (Map<String, dynamic> param in parameters) {
+      String name = param['name'];
+      String type = param['type'];
+      buffer.writeln(' "$name" : $name, ');
+    }
+    buffer.writeln('};');
     return buffer.toString();
   }
 
@@ -128,7 +112,7 @@ class MemberCountLibraryGenerator extends Generator {
     String final_list = '';
     if (endpoint_parameters.isNotEmpty) final_list += list1;
     if (parameters.isNotEmpty) {
-      if(endpoint_parameters.isNotEmpty) final_list += ', ';
+      if (endpoint_parameters.isNotEmpty) final_list += ', ';
       final_list += list2;
     }
     return final_list;

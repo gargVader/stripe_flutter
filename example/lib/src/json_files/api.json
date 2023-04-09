@@ -1,0 +1,183 @@
+[
+  {
+    "name": "Balance",
+    "methods": [
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/balance",
+        "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
+        "parameters": [],
+        "endpoint_parameters": []
+      }
+    ]
+  },
+  {
+    "name": "BalanceTransactions",
+    "methods": [
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/balance_transactions",
+        "description": "A dictionary with a data property that contains an array of up to limit transactions, starting after transaction starting_after. Each entry in the array is a separate transaction history object. If no more transactions are available, the resulting array will be empty.",
+        "parameters": [],
+        "endpoint_parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/balance_transactions/id",
+        "description": "Returns a balance transaction if a valid balance transaction ID was provided. Returns an error otherwise.",
+        "parameters": [],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Charges",
+    "methods": [
+      {
+        "http_method": "POST",
+        "endpoint": "/v1/charges",
+        "description": "Creates a new charge object.",
+        "parameters": [
+          {
+            "name": "amount",
+            "type": "int"
+          },
+          {
+            "name": "currency",
+            "type": "String"
+          }
+        ],
+        "endpoint_parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/charges/id",
+        "description": "Retrieves the details of a charge that has previously been created. Supply the unique charge ID that was returned from your previous request, and Stripe will return the corresponding charge information. The same information is returned when creating or refunding the charge.",
+        "parameters": [],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "http_method": "POST",
+        "endpoint": "/v1/charges/id",
+        "description": "Updates the specified charge by setting the values of the parameters passed. Any parameters not provided will be left unchanged.",
+        "parameters": [
+        ],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "http_method": "POST",
+        "endpoint": "/v1/charges/id/capture",
+        "description": "Capture the payment of an existing, uncaptured, charge. This is the second half of the two-step payment flow, where first you created a charge with the capture option set to false.",
+        "parameters": [
+        ],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/charges",
+        "description": "Returns a list of charges you’ve previously created. The charges are returned in sorted order, with the most recent charges appearing first.",
+        "parameters": [],
+        "endpoint_parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/charges/search",
+        "description": "Search for charges you’ve previously created using Stripe’s Search Query Language.",
+        "parameters": [
+          {
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "endpoint_parameters": []
+      }
+    ]
+  },
+  {
+    "name": "Customers",
+    "methods": [
+      {
+        "http_method": "POST",
+        "endpoint": "/v1/customers",
+        "description": "",
+        "parameters": [],
+        "endpoint_parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/customers/id",
+        "description": "Retrieves a Customer object.",
+        "parameters": [],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "http_method": "POST",
+        "endpoint": "/v1/customers/id",
+        "description": "Updates the specified customer by setting the values of the parameters passed. Any parameters not provided will be left unchanged. ",
+        "parameters": [],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "http_method": "DELETE",
+        "endpoint": "/v1/customers/id",
+        "description": "Permanently deletes a customer. It cannot be undone. Also immediately cancels any active subscriptions on the customer.",
+        "parameters": [],
+        "endpoint_parameters": [
+          {
+            "name": "id",
+            "type": "String"
+          }
+        ]
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/customers",
+        "description": "Returns a list of your customers. The customers are returned sorted by creation date, with the most recent customers appearing first.",
+        "parameters": [],
+        "endpoint_parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/customers/search",
+        "description": "Search for customers you’ve previously created using Stripe’s Search Query Language.",
+        "parameters": [
+          {
+            "name": "query",
+            "type": "String"
+          }
+        ],
+        "endpoint_parameters": []
+      }
+    ]
+  }
+]
