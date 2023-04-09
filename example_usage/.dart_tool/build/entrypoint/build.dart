@@ -16,8 +16,8 @@ final _builders = <_i1.BuilderApplication>[
     appliesBuilders: const [r'source_gen:part_cleanup'],
   ),
   _i1.apply(
-    r'source_gen_example:member_count',
-    [_i3.metadataLibraryBuilder],
+    r'source_gen_example:stripe_library',
+    [_i3.stripeLibraryBuilder],
     _i1.toDependentsOf(r'source_gen_example'),
     hideOutput: false,
   ),

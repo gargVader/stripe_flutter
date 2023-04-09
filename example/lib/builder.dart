@@ -15,9 +15,9 @@ library source_gen_example.builder;
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
 
-import 'src/member_count_library_generator.dart';
+import 'src/stripe_library_generator.dart';
 
-Builder metadataLibraryBuilder(BuilderOptions options) => LibraryBuilder(
-      MemberCountLibraryGenerator(),
+Builder stripeLibraryBuilder(BuilderOptions options) => LibraryBuilder(
+      StripeLibraryGenerator(),
       generatedExtension: '.info.dart',
     );

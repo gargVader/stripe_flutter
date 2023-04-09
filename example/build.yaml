@@ -1,11 +1,11 @@
 # Read about `build.yaml` at https://pub.dev/packages/build_config
 builders:
   # name of the builder
-  member_count:
-    # library URI containing the builder - maps to `lib/member_count_library_generator.dart`
+  stripe_library:
+    # library URI containing the builder - maps to `lib/stripe_library_generator.dart`
     import: "package:source_gen_example/builder.dart"
     # Name of the function in the above library to call.
-    builder_factories: ["metadataLibraryBuilder"]
+    builder_factories: ["stripeLibraryBuilder"]
     # The mapping from the source extension to the generated file extension
     build_extensions: {".dart": [".info.dart"]}
     # Will automatically run on any package that depends on it
