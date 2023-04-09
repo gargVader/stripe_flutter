@@ -1,33 +1,32 @@
 [
   {
     "name": "Balance",
-    "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
     "methods": [
       {
         "http_method": "GET",
         "endpoint": "/v1/balance",
+        "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
         "parameters": []
       }
     ]
   },
   {
-    "name": "Charges",
-    "description": "The Charges API allows you to charge credit cards or payment sources.",
+    "name": "BalanceTransactions",
     "methods": [
       {
-        "http_method": "POST",
-        "endpoint": "/v1/charges",
-        "description": "Creates a new charge object.",
+        "http_method": "GET",
+        "endpoint": "/v1/balance_transactions",
+        "description": "A dictionary with a data property that contains an array of up to limit transactions, starting after transaction starting_after. Each entry in the array is a separate transaction history object. If no more transactions are available, the resulting array will be empty.",
+        "parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/balance_transactions/id",
+        "description": "Returns a balance transaction if a valid balance transaction ID was provided. Returns an error otherwise.",
         "parameters": [
           {
-            "name": "amount",
-            "type": "integer",
-            "description": "A positive integer in the smallest currency unit (e.g., 100 cents to charge 1.00 or 100 to charge 100, a zero-decimal currency) representing how much to charge the card."
-          },
-          {
-            "name": "currency",
-            "type": "string",
-            "description": "Three-letter ISO currency code, in lowercase. Must be a supported currency."
+            "name": "id",
+            "type": "String"
           }
         ]
       }

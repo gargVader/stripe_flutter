@@ -16,33 +16,32 @@ class MemberCountLibraryGenerator extends Generator {
     String dataString = '''[
   {
     "name": "Balance",
-    "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
     "methods": [
       {
         "http_method": "GET",
         "endpoint": "/v1/balance",
+        "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
         "parameters": []
       }
     ]
   },
   {
-    "name": "Charges",
-    "description": "The Charges API allows you to charge credit cards or payment sources.",
+    "name": "BalanceTransactions",
     "methods": [
       {
-        "http_method": "POST",
-        "endpoint": "/v1/charges",
-        "description": "Creates a new charge object.",
+        "http_method": "GET",
+        "endpoint": "/v1/balance_transactions",
+        "description": "A dictionary with a data property that contains an array of up to limit transactions, starting after transaction starting_after. Each entry in the array is a separate transaction history object. If no more transactions are available, the resulting array will be empty.",
+        "parameters": []
+      },
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/balance_transactions/id",
+        "description": "Returns a balance transaction if a valid balance transaction ID was provided. Returns an error otherwise.",
         "parameters": [
           {
-            "name": "amount",
-            "type": "int",
-            "description": "A positive integer in the smallest currency unit (e.g., 100 cents to charge 1.00 or 100 to charge 100, a zero-decimal currency) representing how much to charge the card."
-          },
-          {
-            "name": "currency",
-            "type": "String",
-            "description": "Three-letter ISO currency code, in lowercase. Must be a supported currency."
+            "name": "id",
+            "type": "String"
           }
         ]
       }
@@ -54,36 +53,65 @@ class MemberCountLibraryGenerator extends Generator {
     buffer.writeln('import "utils.dart";');
 
     for (final api in apis) {
-      String name = api["name"];
-
-      // Create class for api
-      String className = '${name}Api';
-      buffer.writeln('class $className {');
-
-      // Generate methods for each HTTP method in the /charges endpoint
-      for (Map<String, dynamic> method in api["methods"]) {
-        final String httpMethod =
-            (method['http_method'] as String).toLowerCase();
-        final endpoint = method['endpoint'];
-        List parameters = method['parameters'];
-        print('params = ${parameters}');
-        final methodName = '${httpMethod}_$endpoint'.replaceAll('/', '_');
-        var methodParameters = _generateParameters(parameters);
-        // Generate a method for the HTTP method
-        buffer.writeln('  void $methodName(${methodParameters}) async {');
-        buffer.writeln(
-            'Utils.makeHTTPRequest("$endpoint", "${httpMethod.toUpperCase()}");    ');
-        buffer.writeln('  }\n\n');
-      }
-
-      // Close the class
-      buffer.writeln('}\n\n');
+      String generatedClass = _generateClass(api);
+      buffer.writeln(generatedClass);
     }
 
     return buffer.toString();
   }
 
-  String _generateParameters(List parameters) {
+  String _generateClass(final api) {
+    StringBuffer buffer = new StringBuffer();
+    String name = api["name"];
+
+    // Create class for api
+    String className = '${name}Api';
+    buffer.writeln('class $className {');
+
+    // Generate methods for each HTTP method in the /charges endpoint
+    for (Map<String, dynamic> method in api["methods"]) {
+      String generatedMethod = _generateMethod(method);
+      buffer.writeln(generatedMethod);
+    }
+
+    // Close the class
+    buffer.writeln('}\n\n');
+    return buffer.toString();
+  }
+
+  String _generateMethod(Map<String, dynamic> method) {
+    StringBuffer buffer = new StringBuffer();
+
+    final String httpMethod = (method['http_method'] as String);
+    final String description = method['description'];
+    final endpoint = method['endpoint'];
+    List parameters = method['parameters'];
+
+    final methodName = '${httpMethod.toLowerCase()}_$endpoint'.replaceAll('/', '_');
+    final generatedParameters = _generateMethodParameters(parameters);
+    final generatedEndpoint = _generateEndpoint(endpoint, parameters);
+    print('generatedEndpoint = $generatedEndpoint');
+
+    // Generate a method for the HTTP method
+    buffer.writeln('  // $description');
+    buffer.writeln('  void $methodName(${generatedParameters}) async {');
+    buffer.writeln(
+        'Utils.makeHTTPRequest("$generatedEndpoint", "${httpMethod.toUpperCase()}");    ');
+    buffer.writeln('  }\n\n');
+
+    return buffer.toString();
+  }
+
+  String _generateEndpoint(String endpoint, List parameters) {
+    for (Map<String, dynamic> param in parameters) {
+      String name = param['name'];
+      String type = param['type'];
+      endpoint = endpoint.replaceAll(name, "\$$name");
+    }
+    return endpoint;
+  }
+
+  String _generateMethodParameters(List parameters) {
     if (parameters.isEmpty) return '';
     return parameters
         .map((param) => '${param['type']} ${param['name']}')
