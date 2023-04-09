@@ -24,6 +24,29 @@ class MemberCountLibraryGenerator extends Generator {
         "parameters": []
       }
     ]
+  },
+  {
+    "name": "Charges",
+    "description": "The Charges API allows you to charge credit cards or payment sources.",
+    "methods": [
+      {
+        "http_method": "POST",
+        "endpoint": "/v1/charges",
+        "description": "Creates a new charge object.",
+        "parameters": [
+          {
+            "name": "amount",
+            "type": "int",
+            "description": "A positive integer in the smallest currency unit (e.g., 100 cents to charge 1.00 or 100 to charge 100, a zero-decimal currency) representing how much to charge the card."
+          },
+          {
+            "name": "currency",
+            "type": "String",
+            "description": "Three-letter ISO currency code, in lowercase. Must be a supported currency."
+          }
+        ]
+      }
+    ]
   }
 ]''';
 
@@ -38,19 +61,20 @@ class MemberCountLibraryGenerator extends Generator {
       buffer.writeln('class $className {');
 
       // Generate methods for each HTTP method in the /charges endpoint
-      // for (Map<String, dynamic> method in api["methods"]) {
-      //   final String httpMethod =
-      //       (method['http_method'] as String).toLowerCase();
-      //   final endpoint = method['endpoint'];
-      //   final parameters = method['parameters'];
-      //   final methodName = '${httpMethod}_$endpoint'.replaceAll('/', '_');
-      //   var methodParameters = _generateParameters(parameters);
-      //   // Generate a method for the HTTP method
-      //   buffer.writeln('  void $methodName(${methodParameters}) async {');
-      //   buffer.writeln(
-      //       'Utils.makeHTTPRequest("$endpoint", "${httpMethod.toUpperCase()}");    ');
-      //   buffer.writeln('  }\n\n');
-      // }
+      for (Map<String, dynamic> method in api["methods"]) {
+        final String httpMethod =
+            (method['http_method'] as String).toLowerCase();
+        final endpoint = method['endpoint'];
+        List parameters = method['parameters'];
+        print('params = ${parameters}');
+        final methodName = '${httpMethod}_$endpoint'.replaceAll('/', '_');
+        var methodParameters = _generateParameters(parameters);
+        // Generate a method for the HTTP method
+        buffer.writeln('  void $methodName(${methodParameters}) async {');
+        buffer.writeln(
+            'Utils.makeHTTPRequest("$endpoint", "${httpMethod.toUpperCase()}");    ');
+        buffer.writeln('  }\n\n');
+      }
 
       // Close the class
       buffer.writeln('}\n\n');
@@ -59,7 +83,7 @@ class MemberCountLibraryGenerator extends Generator {
     return buffer.toString();
   }
 
-  String _generateParameters(List<Map<String, dynamic>> parameters) {
+  String _generateParameters(List parameters) {
     if (parameters.isEmpty) return '';
     return parameters
         .map((param) => '${param['type']} ${param['name']}')
