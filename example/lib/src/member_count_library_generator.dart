@@ -2,10 +2,10 @@
 // for details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
+import 'dart:convert';
+
 import 'package:build/build.dart';
 import 'package:source_gen/source_gen.dart';
-import 'dart:async' show Future;
-import 'dart:convert';
 
 class MemberCountLibraryGenerator extends Generator {
   @override
@@ -13,47 +13,54 @@ class MemberCountLibraryGenerator extends Generator {
     final StringBuffer buffer = StringBuffer();
 
     // Generate code for the /charges endpoint
-    Map chargesData = {
-      "description":
-          "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
-      "methods": [
-        {"http_method": "GET", "endpoint": "/v1/balance", "parameters": []}
-      ]
-    };
-
-    // Generate a class for the /charges endpoint
-    buffer.writeln('import "utils.dart";');
-    buffer.writeln('class ChargesApi {');
-
-    // Generate methods for each HTTP method in the /charges endpoint
-    for (final methodData in chargesData["methods"]) {
-      print(methodData);
-      final String httpMethod =
-          (methodData['http_method'] as String).toLowerCase();
-      print(httpMethod);
-      final endpoint = methodData['endpoint'];
-      final methodName = '${httpMethod}_$endpoint'.replaceAll('/', '_');
-      print(methodName);
-      var methodParameters = '';
-      if ((methodData['parameters'] as List).isNotEmpty) {
-        print('inside');
-        methodParameters = _generateParameters(methodData['parameters']);
-        print(methodParameters);
+    String dataString = '''[
+  {
+    "name": "Balance",
+    "description": "Returns an object containing your available and pending balance, as well as the time at which it was computed.",
+    "methods": [
+      {
+        "http_method": "GET",
+        "endpoint": "/v1/balance",
+        "parameters": []
       }
-      // Generate a method for the HTTP method
-      buffer.writeln(
-          '  void $methodName(${methodParameters}) async {');
-      buffer.writeln('Utils.makeHTTPRequest("$endpoint", "${httpMethod.toUpperCase()}");    ');
-      buffer.writeln('  }');
-    }
+    ]
+  }
+]''';
 
-    // Close the class
-    buffer.writeln('}');
+    final apis = jsonDecode(dataString);
+    buffer.writeln('import "utils.dart";');
+
+    for (final api in apis) {
+      String name = api["name"];
+
+      // Create class for api
+      String className = '${name}Api';
+      buffer.writeln('class $className {');
+
+      // Generate methods for each HTTP method in the /charges endpoint
+      // for (Map<String, dynamic> method in api["methods"]) {
+      //   final String httpMethod =
+      //       (method['http_method'] as String).toLowerCase();
+      //   final endpoint = method['endpoint'];
+      //   final parameters = method['parameters'];
+      //   final methodName = '${httpMethod}_$endpoint'.replaceAll('/', '_');
+      //   var methodParameters = _generateParameters(parameters);
+      //   // Generate a method for the HTTP method
+      //   buffer.writeln('  void $methodName(${methodParameters}) async {');
+      //   buffer.writeln(
+      //       'Utils.makeHTTPRequest("$endpoint", "${httpMethod.toUpperCase()}");    ');
+      //   buffer.writeln('  }\n\n');
+      // }
+
+      // Close the class
+      buffer.writeln('}\n\n');
+    }
 
     return buffer.toString();
   }
 
   String _generateParameters(List<Map<String, dynamic>> parameters) {
+    if (parameters.isEmpty) return '';
     return parameters
         .map((param) => '${param['type']} ${param['name']}')
         .join(', ');
